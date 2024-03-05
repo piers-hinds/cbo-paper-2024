@@ -39,6 +39,7 @@ class ProjectionParticleSystem(ParticleSystem):
         x_bar = self.consensus()
         self.state = self.state - self.beta * (self.state - x_bar) * self.h + self.sigma * (
                     self.state - x_bar) * normals * self.h.sqrt()
+        self.projection(self.state)
         self.t += self.h
         return self.state, x_bar
 
