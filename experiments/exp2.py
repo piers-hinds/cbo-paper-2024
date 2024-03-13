@@ -1,5 +1,26 @@
+import torch
+
 from rsde_opt import *
 from functools import partial
+from matplotlib.animation import FuncAnimation, PillowWriter
+
+
+def ackley_function(x):
+    x_part, y_part = x[:, 0]-2, x[:, 1]-2
+
+    # First term
+    a = 20
+    b = 0.2
+    c = 2 * torch.pi
+    term1 = -a * torch.exp(-b * torch.sqrt(0.5 * (x_part ** 2 + y_part ** 2)))
+
+    # Second term
+    term2 = -torch.exp(0.5 * (torch.cos(c * x_part) + torch.cos(c * y_part)))
+
+    # Final value (e is Euler's number, approx. 2.71828)
+    ackley_value = term1 + term2 + a + torch.exp(torch.tensor(1.0))
+
+    return ackley_value
 
 
 def project_unit_ball(x, r=1):
@@ -50,27 +71,30 @@ def create_ax(objective, feasible_region):
 
 
 if __name__ == '__main__':
-    r = 2
-    system = ProjectionParticleSystem(lambda x: torch.sqrt( (x[:, 0]-0.2) ** 2 + (x[:, 1]-0.2) ** 2),
+    r = 3
+    system = ProjectionParticleSystem(ackley_function,
                                       partial(project_unit_ball, r=r),
-                                      5,
+                                      10,
                                       0.5,
-                                      0.2,
+                                      0.5,
                                       2,
                                       100,
-                                      0.01,
+                                      0.001,
                                       'cpu')
 
     logger = ParticleSystemLogger(system)
-    system.state = uniform_disk(system.num_particles) * 2
+    torch.manual_seed(2)
+    system.state = uniform_disk(system.num_particles) * 3
 
     system.consensus()
 
-    for i in range(500):
+    for i in range(2000):
         norms = torch.randn_like(system.state)
         state, consensus = system.step(norms)
         logger.log_state(state, consensus)
 
     ax = create_ax(system.objective, partial(unit_circle_feasible_region, r=r))
-    logger.animate_particles(ax)
 
+    ani = logger.animate_particles(ax)
+    # ani.save('C:/Users/pmxph7/OneDrive - The University of Nottingham/PhD/ccbo/plots/ackley.gif',
+    #          writer=PillowWriter(fps=30))
