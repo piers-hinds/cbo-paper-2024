@@ -1,5 +1,4 @@
 import torch
-
 from rsde_opt import *
 from functools import partial
 from matplotlib.animation import FuncAnimation, PillowWriter
@@ -95,6 +94,6 @@ if __name__ == '__main__':
 
     ax = create_ax(system.objective, partial(unit_circle_feasible_region, r=r))
 
-    ani = logger.animate_particles(ax)
+    ani = animate_particles(logger, ax)
     # ani.save('C:/Users/pmxph7/OneDrive - The University of Nottingham/PhD/ccbo/plots/ackley.gif',
     #          writer=PillowWriter(fps=30))

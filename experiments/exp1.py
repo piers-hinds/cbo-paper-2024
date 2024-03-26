@@ -72,5 +72,5 @@ if __name__ == '__main__':
         logger.log_state(state, consensus)
 
     ax = create_ax(system.objective, partial(unit_circle_feasible_region, r=r))
-    logger.animate_particles(ax)
+    animate_particles(logger, ax)
 
