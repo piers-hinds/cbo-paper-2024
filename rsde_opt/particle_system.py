@@ -47,7 +47,7 @@ class SimpleProjectionParticleSystem(ParticleSystem):
 class ProjectionParticleSystem(ParticleSystem):
     def step(self, normals):
         # Consensus
-        objective_values = self.objective(x)
+        objective_values = self.objective(self.state)
         weights = torch.nn.functional.softmax(- self.alpha * objective_values, dim=0)
         x_bar = torch.matmul(weights, self.state)
 
