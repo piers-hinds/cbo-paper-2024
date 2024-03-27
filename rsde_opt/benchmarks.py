@@ -12,10 +12,8 @@ def rastrigin_function(x):
     Returns:
     torch.Tensor: Output tensor of shape (n,) containing the Rastrigin function values for each input point.
     """
-    n = x.shape[1]
-    term1 = 10 * n
-    term2 = torch.sum(x ** 2 - 10 * torch.cos(2 * np.pi * x), dim=1)
-    return term1 + term2
+    d = x.shape[1]
+    return 10 * d + torch.sum(x ** 2 - 10 * torch.cos(2 * np.pi * x), dim=1)
 
 
 def ackley_function(x):
