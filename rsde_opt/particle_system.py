@@ -34,7 +34,7 @@ class ParticleSystem:
         pass
 
 
-class ProjectionParticleSystem(ParticleSystem):
+class SimpleProjectionParticleSystem(ParticleSystem):
     def step(self, normals):
         x_bar = self.consensus()
         self.state = self.state - self.beta * (self.state - x_bar) * self.h + self.sigma * (
@@ -43,3 +43,25 @@ class ProjectionParticleSystem(ParticleSystem):
         self.t += self.h
         return self.state, x_bar
 
+
+class ProjectionParticleSystem(ParticleSystem):
+    def step(self, normals):
+        # Consensus
+        objective_values = self.objective(self.state)
+        weights = torch.exp(- self.alpha * objective_values)
+        x_bar = torch.matmul(weights, self.state) / weights.sum()
+
+        # Objective function at consensus
+        objective_consensus = self.objective(x_bar.unsqueeze(0)).item()
+
+        # Kill drift if the particle is somewhere better than the consensus
+        drift = torch.where((objective_values < objective_consensus).unsqueeze(-1),
+                            - self.beta * (self.state - x_bar),
+                            torch.zeros_like(self.state))
+
+        # Projected Euler step
+        self.state = self.state + drift * self.h + self.sigma * (self.state - x_bar) * normals * self.h.sqrt()
+        self.projection(self.state)
+        self.t += self.h
+
+        return self.state, x_bar
