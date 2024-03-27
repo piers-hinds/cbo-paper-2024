@@ -1,16 +1,9 @@
-import numpy as np
 import torch
 
 
-def uniform_disk(n: int):
-    theta = 2 * np.pi * torch.rand(n)
-    r = torch.rand(n).sqrt()
-    return torch.stack([r * theta.cos(), r * theta.sin()], dim=-1)
-
-
-def uniform_ball(n: int, d: int):
+def random_uniform_ball(n: int, d: int):
     """
-    Generate n points uniformly distributed within a d-dimensional unit ball.
+    Samples n points uniformly distributed within a d-dimensional unit ball.
 
     Parameters:
     n (int): Number of points to generate.
