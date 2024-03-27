@@ -2,12 +2,12 @@ import torch
 import numpy as np
 
 
-def rastrigin_function(x):
+def rastrigin_function(x: torch.Tensor) -> torch.Tensor:
     """
     Rastrigin function.
 
-    Parameters:
-    x (torch.Tensor): Input tensor of shape (n, d) where n is the number of points and d is the dimension.
+    Args:
+    x: Input tensor of shape (n, d) where n is the number of points and d is the dimension.
 
     Returns:
     torch.Tensor: Output tensor of shape (n,) containing the Rastrigin function values for each input point.
@@ -16,12 +16,12 @@ def rastrigin_function(x):
     return 10 * d + torch.sum(x ** 2 - 10 * torch.cos(2 * np.pi * x), dim=1)
 
 
-def ackley_function(x):
+def ackley_function(x: torch.Tensor) -> torch.Tensor:
     """
     Ackley function, translated so the global minimum is at (2, 2)
 
-    Parameters:
-    x (torch.Tensor): Input tensor of shape (n, 2), where n is the number of points.
+    Args:
+    x: Input tensor of shape (n, 2), where n is the number of points.
                       The tensor should contain 2-dimensional points.
 
     Returns:

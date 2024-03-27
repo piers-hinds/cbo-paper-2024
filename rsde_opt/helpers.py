@@ -1,13 +1,14 @@
 import torch
 
 
-def random_uniform_ball(n: int, d: int):
+def random_uniform_ball(n: int,
+                        d: int) -> torch.Tensor:
     """
     Samples n points uniformly distributed within a d-dimensional unit ball.
 
-    Parameters:
-    n (int): Number of points to generate.
-    d (int): Dimension of the ball.
+    Args:
+    n: Number of points to generate.
+    d: Dimension of the ball.
 
     Returns:
     torch.Tensor: Tensor of shape (n, d) containing the generated points.
@@ -19,12 +20,14 @@ def random_uniform_ball(n: int, d: int):
     return points
 
 
-def project_unit_ball(x, r=1):
+def project_unit_ball(x: torch.Tensor,
+                      r: float = 1) -> torch.Tensor:
     """
     Projects the positions of N particles in R^d onto the closed unit ball.
 
-    Parameters:
-    x (torch.Tensor): A tensor of shape (N, d) representing the positions of N particles in R^d.
+    Args:
+    x: A tensor of shape (N, d) representing the positions of N particles in R^d.
+    r: Radius of unit ball to project onto.
 
     Returns:
     torch.Tensor: A tensor of shape (N, d) where each d-dimensional row vector has been
