@@ -14,14 +14,15 @@ class ParticleSystem:
     sigma: float
     dim: int
     num_particles: int
-    h: torch.tensor
+    step_size: float
+    h: torch.tensor = field(init=False)
     state: torch.Tensor = field(init=False)
     device: str = 'cpu'
 
     def __post_init__(self):
         self.state = self.initial_state(self.num_particles).to(self.device)
         self.t = torch.tensor(0., device=self.device)
-        self.h = torch.tensor(self.h, device=self.device)
+        self.h = torch.tensor(self.step_size, device=self.device)
 
     def consensus(self, x=None):
         if x is None:
