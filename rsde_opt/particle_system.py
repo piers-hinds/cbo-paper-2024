@@ -8,6 +8,7 @@ from typing import Callable
 class ParticleSystem:
     objective: Callable
     projection: Callable
+    initial_state: Callable
     alpha: float
     beta: float
     sigma: float
@@ -18,7 +19,7 @@ class ParticleSystem:
     device: str = 'cpu'
 
     def __post_init__(self):
-        self.state = torch.empty([self.num_particles, self.dim], device=self.device)
+        self.state = self.initial_state(self.num_particles).to(self.device)
         self.t = torch.tensor(0., device=self.device)
         self.h = torch.tensor(self.h, device=self.device)
 
@@ -34,8 +35,7 @@ class ParticleSystem:
         pass
 
     def reset(self):
-        self.state = torch.empty([self.num_particles, self.dim], device=self.device)
-        self.t = torch.tensor(0., device=self.device)
+        self.__post_init__()
 
 
 class SimpleProjectionParticleSystem(ParticleSystem):

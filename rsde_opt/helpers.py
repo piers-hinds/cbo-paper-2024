@@ -2,13 +2,15 @@ import torch
 
 
 def random_uniform_ball(n: int,
-                        d: int) -> torch.Tensor:
+                        d: int,
+                        r: float = 1) -> torch.Tensor:
     """
     Samples n points uniformly distributed within a d-dimensional unit ball.
 
     Args:
     n: Number of points to generate.
     d: Dimension of the ball.
+    r: Radius of the ball.
 
     Returns:
     torch.Tensor: Tensor of shape (n, d) containing the generated points.
@@ -17,7 +19,7 @@ def random_uniform_ball(n: int,
     radii = torch.pow(torch.rand(n), 1 / d)
     uniform_sphere_samples = normal_samples / torch.norm(normal_samples, dim=1, keepdim=True)
     points = uniform_sphere_samples * radii.unsqueeze(1)
-    return points
+    return points * r
 
 
 def project_unit_ball(x: torch.Tensor,
