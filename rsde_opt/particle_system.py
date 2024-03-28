@@ -33,6 +33,10 @@ class ParticleSystem:
     def step(self, normals):
         pass
 
+    def reset(self):
+        self.state = torch.empty([self.num_particles, self.dim], device=self.device)
+        self.t = torch.tensor(0., device=self.device)
+
 
 class SimpleProjectionParticleSystem(ParticleSystem):
     def step(self, normals):
