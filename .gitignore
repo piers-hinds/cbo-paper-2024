@@ -3,6 +3,4 @@
 *.iml
 *.pyc
 main.py
-experiments/exp1.py
-experiments/ackley.py
-experiments/rastrigin.py
+/local_experiments
