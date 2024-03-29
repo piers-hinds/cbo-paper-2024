@@ -4,6 +4,7 @@ from .particle_system import ParticleSystem
 
 
 def run_experiment(system: ParticleSystem,
+                   num_steps: int,
                    true_optimum: torch.tensor,
                    epsilon: float,
                    num_runs: int) -> float:
@@ -12,6 +13,7 @@ def run_experiment(system: ParticleSystem,
 
     Args:
         system: The particle system to run the experiment on.
+        num_steps: The number of iterations of the numerical scheme.
         true_optimum: The true optimal objective value.
         epsilon: The tolerance for considering a run successful.
         num_runs: The number of times to run the experiment.
@@ -25,7 +27,7 @@ def run_experiment(system: ParticleSystem,
     pbar.set_description("N={}, ".format(system.num_particles) + "alpha={:.1f}".format(system.alpha))
 
     for i in pbar:
-        for _ in range(500):
+        for _ in range(num_steps):
             normals = torch.randn_like(system.state, device=system.device)
             state, _ = system.step(normals)
 
