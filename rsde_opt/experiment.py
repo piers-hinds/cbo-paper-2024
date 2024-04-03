@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import torch
 from .particle_system import ParticleSystem
 
@@ -24,7 +24,11 @@ def run_experiment(system: ParticleSystem,
     success_count = 0
 
     pbar = tqdm(range(num_runs))
-    pbar.set_description("N={}, ".format(system.num_particles) + "alpha={:.1f}".format(system.alpha))
+    pbar.set_description("N={}, ".format(system.num_particles) +
+                         "alpha={:.1f}, ".format(system.alpha) +
+                         "beta={:.1f}, ".format(system.beta) +
+                         "sigma={:.1f} ".format(system.sigma)
+                         )
 
     for i in pbar:
         for _ in range(num_steps):
@@ -37,5 +41,4 @@ def run_experiment(system: ParticleSystem,
         system.reset()
 
         pbar.set_postfix({'Success rate': success_count / (i+1)})
-
     return success_count / num_runs
