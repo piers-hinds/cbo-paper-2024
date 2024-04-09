@@ -23,7 +23,7 @@ def random_uniform_ball(n: int,
 
 
 def project_unit_ball(x: torch.Tensor,
-                      r: float = 1) -> torch.Tensor:
+                      r: float = 1) -> None:
     """
     Projects the positions of N particles in R^d onto the closed unit ball.
 
