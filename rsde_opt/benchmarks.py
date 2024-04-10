@@ -36,3 +36,20 @@ def ackley_function(x: torch.Tensor) -> torch.Tensor:
     term2 = -torch.exp(0.5 * (torch.cos(c * x_part) + torch.cos(c * y_part)))
     ackley_value = term1 + term2 + a + torch.exp(torch.tensor(1.0))
     return ackley_value
+
+
+def townsend(x: torch.Tensor) -> torch.Tensor:
+    """
+    Townsend function
+
+    Args:
+        x: Input tensor of shape (n, 2), where n is the number of points.
+            The tensor should contain 2-dimensional points.
+
+    Returns:
+    Output tensor of shape (n,) containing the Townsend function values for each input point.
+
+    """
+    xs = x[:, 0]
+    ys = x[:, 1]
+    return - (torch.cos((xs - 0.1) * ys)) ** 2 - xs * torch.sin(3 * xs + ys)
