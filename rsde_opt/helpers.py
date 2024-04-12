@@ -1,4 +1,5 @@
 import torch
+from .projections import project_heart_constraint
 
 
 def random_uniform_ball(n: int,
@@ -22,19 +23,15 @@ def random_uniform_ball(n: int,
     return points * r
 
 
-def project_unit_ball(x: torch.Tensor,
-                      r: float = 1) -> None:
+def sample_heart_initial_state(n: int) -> torch.Tensor:
     """
-    Projects the positions of N particles in R^d onto the closed unit ball.
-
+    Samples n points from a standard Gaussian distribution and projects onto the heart shaped region
     Args:
-    x: A tensor of shape (N, d) representing the positions of N particles in R^d.
-    r: Radius of unit ball to project onto.
+        n:
 
     Returns:
-    torch.Tensor: A tensor of shape (N, d) where each d-dimensional row vector has been
-                  either left unchanged (if it was inside the unit ball) or normalized
-                  to lie on the boundary of the unit ball.
+    torch.Tensor: Tensor of shape (n, 2) containing the generated points.
     """
-    norms = torch.norm(x, p=2, dim=1)
-    x[norms > r] *= (r / norms[norms > r].unsqueeze(1))
+    x = torch.randn([n, 2])
+    return project_heart_constraint(x)
+
