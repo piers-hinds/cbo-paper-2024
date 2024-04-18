@@ -7,7 +7,6 @@ from typing import Callable
 @dataclass
 class ParticleSystem:
     objective: Callable
-    projection: Callable
     initial_state: Callable
     alpha: float
     beta: float
@@ -40,6 +39,10 @@ class ParticleSystem:
 
 
 class SimpleProjectionParticleSystem(ParticleSystem):
+    def __init__(self, projection, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.projection = projection
+
     def step(self, normals):
         x_bar = self.consensus()
         self.state = self.state - self.beta * (self.state - x_bar) * self.h + self.sigma * (
@@ -50,6 +53,10 @@ class SimpleProjectionParticleSystem(ParticleSystem):
 
 
 class ProjectionParticleSystem(ParticleSystem):
+    def __init__(self, projection, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.projection = projection
+
     def step(self, normals):
         # Consensus
         objective_values = self.objective(self.state)
