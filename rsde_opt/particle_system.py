@@ -81,7 +81,7 @@ class ProjectionParticleSystem(ParticleSystem):
         return self.state, x_bar
 
 
-class SimplePenaltyParticleSystem(ParticleSystem):
+class UnconstrainedParticleSystem(ParticleSystem):
     def __init__(self, penalty_function, penalty_parameter, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.penalty_function = penalty_function
