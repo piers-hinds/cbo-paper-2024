@@ -85,26 +85,25 @@ def heart_projection(x: torch.Tensor) -> torch.Tensor:
 
 
 def townsend_init(n):
-    samples = random_uniform_ball(n, 2, 1.5)
+    samples = random_uniform_ball(n, 2, 2.5)
     heart_projection(samples)
     return samples
 
 
 if __name__ == '__main__':
-    radius = 5
-    dim = 1000
-    true_optimum = torch.tensor(-2.0239884)
+    dim = 2
+    true_optimum = torch.tensor([2.0052938, 1.194451])
     epsilon = 0.1
     sc = SuccessCriterion(true_optimum,
                           epsilon,
-                          optimum_type='objective_value')
+                          optimum_type='x_value')
     num_runs = 100
     num_steps = 500
 
     alphas = [1, 10, 100, 1000]
     Ns = [5, 10, 50, 100]
 
-    system = SimpleProjectionParticleSystem(objective=rastrigin_function,
+    system = SimpleProjectionParticleSystem(objective=townsend,
                                             projection=heart_projection,
                                             initial_state=townsend_init,
                                             alpha=10000,

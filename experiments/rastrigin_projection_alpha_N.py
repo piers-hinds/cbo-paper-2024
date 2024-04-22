@@ -7,11 +7,11 @@ from functools import partial
 if __name__ == '__main__':
     radius = 5
     dim = 1000
-    true_optimum = torch.tensor(0.)
-    epsilon = 0.1,
+    true_optimum = torch.tensor([0, 0])
+    epsilon = 0.1
     sc = SuccessCriterion(true_optimum,
                           epsilon,
-                          optimum_type='objective_value')
+                          optimum_type='x_value')
     num_runs = 100
     num_steps = 500
 
