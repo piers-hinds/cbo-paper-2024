@@ -99,7 +99,8 @@ class UnconstrainedParticleSystem(ParticleSystem):
         super().__init__(*args, **kwargs)
         self.penalty_function = penalty_function
         self.penalty_parameter = penalty_parameter
-        self.objective = lambda x: self.objective(x) + self.penalty_parameter * self.penalty_function(x)
+        self._objective = self.objective
+        self.objective = lambda x: self._objective(x) + self.penalty_parameter * self.penalty_function(x)
 
     def step(self, normals):
         x_bar = self.consensus()
