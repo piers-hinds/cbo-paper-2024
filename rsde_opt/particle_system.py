@@ -16,11 +16,9 @@ class ParticleSystem:
     step_size: float
     h: torch.tensor = field(init=False)
     state: torch.Tensor = field(init=False)
-    _objective: Callable = field(init=False)
     device: str = 'cpu'
 
     def __post_init__(self):
-        self._objective = self.objective
         self.state = self.initial_state(self.num_particles).to(self.device)
         self.t = torch.tensor(0., device=self.device)
         self.h = torch.tensor(self.step_size, device=self.device)
@@ -28,7 +26,7 @@ class ParticleSystem:
     def consensus(self, x=None):
         if x is None:
             x = self.state
-        objective_values = self._objective(x)
+        objective_values = self.objective(x)
         weights = torch.nn.functional.softmax(- self.alpha * objective_values, dim=0)
         return torch.matmul(weights, x)
 
@@ -61,7 +59,7 @@ class ProjectionParticleSystem(ParticleSystem):
 
     def step(self, normals):
         # Consensus
-        objective_values = self._objective(self.state)
+        objective_values = self.objective(self.state)
         weights = torch.nn.functional.softmax(- self.alpha * objective_values, dim=0)
         x_bar = torch.matmul(weights, self.state)
 
@@ -81,12 +79,27 @@ class ProjectionParticleSystem(ParticleSystem):
         return self.state, x_bar
 
 
+class SimplePenaltyParticleSystem(ParticleSystem):
+    def __init__(self, projection, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.projection = projection
+
+    def step(self, normals):
+        x_bar = self.consensus()
+        current_state = self.state.clone()
+        self.projection(self.state)
+        self.state = self.state - self.beta * (current_state - x_bar) * self.h + self.sigma * (
+                current_state - x_bar) * normals * self.h.sqrt()
+        self.t += self.h
+        return self.state, x_bar
+
+
 class UnconstrainedParticleSystem(ParticleSystem):
     def __init__(self, penalty_function, penalty_parameter, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.penalty_function = penalty_function
         self.penalty_parameter = penalty_parameter
-        self._objective = lambda x: self.objective(x) + self.penalty_parameter * self.penalty_function(x)
+        self.objective = lambda x: self.objective(x) + self.penalty_parameter * self.penalty_function(x)
 
     def step(self, normals):
         x_bar = self.consensus()
