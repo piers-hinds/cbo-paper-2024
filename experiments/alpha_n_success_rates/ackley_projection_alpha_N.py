@@ -40,7 +40,7 @@ if __name__ == '__main__':
                                       num_runs)
         results.append([alpha, N, success_rate])
 
-    with open('alpha_n_ackley.csv', 'w', newline='') as csvfile:
+    with open('../alpha_n_ackley.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['Alpha', 'N', 'Success Rate'])
         writer.writerows(results)
