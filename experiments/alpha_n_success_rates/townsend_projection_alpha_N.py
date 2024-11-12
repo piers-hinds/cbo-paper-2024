@@ -103,7 +103,7 @@ if __name__ == '__main__':
     alphas = [1, 10, 100, 1000]
     Ns = [5, 10, 50, 100]
 
-    system = SimpleProjectionParticleSystem(objective=townsend,
+    system = SimpleProjectionParticleSystem(objective=townsend_function,
                                             projection=heart_projection,
                                             initial_state=townsend_init,
                                             alpha=10000,

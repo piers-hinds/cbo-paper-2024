@@ -1,5 +1,5 @@
 import torch
-from rsde_opt.benchmarks import rastrigin_function, ackley_function
+from rsde_opt.benchmarks import rastrigin_function, ackley_function, rosenbrock_function
 
 
 def test_rastrigin_function_output_shape():
@@ -31,3 +31,9 @@ def test_ackley_function_global_minimum():
     x = torch.tensor([[2.0, 2.0]])
     output = ackley_function(x)
     assert torch.allclose(output, torch.tensor([0.]), atol=1e-6)
+
+
+def test_rosenbrock_function_global_minimum():
+    x = torch.tensor([[1.0, 1.0]])
+    output = rosenbrock_function(x)
+    assert torch.allclose(output, torch.tensor([0.]))

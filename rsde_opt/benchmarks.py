@@ -38,7 +38,7 @@ def ackley_function(x: torch.Tensor) -> torch.Tensor:
     return ackley_value
 
 
-def townsend(x: torch.Tensor) -> torch.Tensor:
+def townsend_function(x: torch.Tensor) -> torch.Tensor:
     """
     Townsend function
 
@@ -53,3 +53,18 @@ def townsend(x: torch.Tensor) -> torch.Tensor:
     xs = x[:, 0]
     ys = x[:, 1]
     return - (torch.cos((xs - 0.1) * ys)) ** 2 - xs * torch.sin(3 * xs + ys)
+
+
+def rosenbrock_function(x: torch.Tensor) -> torch.Tensor:
+    """
+    Rosenbrock function in 2 dimensions
+
+    Args:
+        x: Input tensor of shape (n, 2), where n in the number of points.
+
+    Returns:
+    Output tensor of shpae (n, ) containing the Rosenbrock function values for each input point.
+
+    """
+    xs, ys = x[:, 0], x[:, 1]
+    return (1 - xs) ** 2 + 100 * (ys - xs ** 2) ** 2
