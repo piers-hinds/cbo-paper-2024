@@ -59,8 +59,8 @@ def run_experiment(system: ParticleSystem,
     progress_bar = tqdm(range(num_runs), disable=not progress_bar)
     progress_bar.set_description("N={}, ".format(system.num_particles) +
                                  "alpha={:.1f}, ".format(system.alpha) +
-                                 "beta={:.1f}, ".format(system.beta) +
-                                 "sigma={:.1f} ".format(system.sigma)
+                                 "beta={:.1f}, ".format(system.beta(0)) +
+                                 "sigma={:.1f} ".format(system.sigma(0))
                                  )
 
     for i in progress_bar:

@@ -1,6 +1,7 @@
 import pytest
 import torch
-from rsde_opt.particle_system import ProjectionParticleSystem, SimpleProjectionParticleSystem, UnconstrainedParticleSystem
+from rsde_opt.particle_system import ProjectionParticleSystem, SimpleProjectionParticleSystem, \
+    UnconstrainedParticleSystem
 
 
 @pytest.fixture
@@ -12,8 +13,8 @@ def example_proj_particle_system():
                                    projection=unit_clamp,
                                    initial_state=lambda n: torch.zeros(n, 2),
                                    alpha=1,
-                                   beta=1,
-                                   sigma=4,
+                                   beta=lambda x: 1,
+                                   sigma=lambda x: 4,
                                    dim=2,
                                    num_particles=5,
                                    step_size=0.01)
@@ -30,8 +31,8 @@ def example_simple_proj_particle_system():
                                          projection=unit_clamp,
                                          initial_state=lambda n: torch.zeros(n, 2),
                                          alpha=1,
-                                         beta=1,
-                                         sigma=4,
+                                         beta=lambda x: 1,
+                                         sigma=lambda x: 4,
                                          dim=2,
                                          num_particles=5,
                                          step_size=0.01)
@@ -84,8 +85,8 @@ def example_unconstrained_particle_system():
                                       penalty_parameter=1,
                                       initial_state=lambda n: torch.zeros(n, 2),
                                       alpha=1,
-                                      beta=1,
-                                      sigma=4,
+                                      beta=lambda x: 1,
+                                      sigma=lambda x: 4,
                                       dim=2,
                                       num_particles=5,
                                       step_size=0.01)
