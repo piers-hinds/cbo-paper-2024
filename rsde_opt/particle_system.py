@@ -9,8 +9,8 @@ class ParticleSystem:
     objective: Callable
     initial_state: Callable
     alpha: float
-    beta: float
-    sigma: float
+    beta: Callable
+    sigma: Callable
     dim: int
     num_particles: int
     step_size: float
@@ -44,9 +44,9 @@ class SimpleProjectionParticleSystem(ParticleSystem):
         self.projection = projection
 
     def step(self, normals):
+        beta, sigma = self.beta(self.t), self.sigma(self.t)
         x_bar = self.consensus()
-        self.state = self.state - self.beta * (self.state - x_bar) * self.h + self.sigma * (
-                    self.state - x_bar) * normals * self.h.sqrt()
+        self.state += -beta * (self.state - x_bar) * self.h + sigma * (self.state - x_bar) * normals * self.h.sqrt()
         self.projection(self.state)
         self.t += self.h
         return self.state, x_bar
@@ -58,6 +58,7 @@ class ProjectionParticleSystem(ParticleSystem):
         self.projection = projection
 
     def step(self, normals):
+        beta, sigma = self.beta(self.t), self.sigma(self.t)
         # Consensus
         objective_values = self.objective(self.state)
         weights = torch.nn.functional.softmax(- self.alpha * objective_values, dim=0)
@@ -68,11 +69,11 @@ class ProjectionParticleSystem(ParticleSystem):
 
         # Kill drift if the particle is somewhere better than the consensus
         drift = torch.where((objective_values < objective_consensus).unsqueeze(-1),
-                            - self.beta * (self.state - x_bar),
+                            - beta * (self.state - x_bar),
                             torch.zeros_like(self.state))
 
         # Projected Euler step
-        self.state = self.state + drift * self.h + self.sigma * (self.state - x_bar) * normals * self.h.sqrt()
+        self.state += drift * self.h + sigma * (self.state - x_bar) * normals * self.h.sqrt()
         self.projection(self.state)
         self.t += self.h
 
@@ -85,11 +86,11 @@ class SimplePenaltyParticleSystem(ParticleSystem):
         self.projection = projection
 
     def step(self, normals):
+        beta, sigma = self.beta(self.t), self.sigma(self.t)
         x_bar = self.consensus()
         current_state = self.state.clone()
         self.projection(self.state)
-        self.state = self.state - self.beta * (current_state - x_bar) * self.h + self.sigma * (
-                current_state - x_bar) * normals * self.h.sqrt()
+        self.state += -beta * (current_state - x_bar) * self.h + sigma * (current_state - x_bar) * normals * self.h.sqrt()
         self.t += self.h
         return self.state, x_bar
 
@@ -103,8 +104,8 @@ class UnconstrainedParticleSystem(ParticleSystem):
         self.objective = lambda x: self._objective(x) + self.penalty_parameter * self.penalty_function(x)
 
     def step(self, normals):
+        beta, sigma = self.beta(self.t), self.sigma(self.t)
         x_bar = self.consensus()
-        self.state = self.state - self.beta * (self.state - x_bar) * self.h + self.sigma * (
-                self.state - x_bar) * normals * self.h.sqrt()
+        self.state += -beta * (self.state - x_bar) * self.h + sigma * (self.state - x_bar) * normals * self.h.sqrt()
         self.t += self.h
         return self.state, x_bar

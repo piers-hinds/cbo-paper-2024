@@ -14,8 +14,8 @@ def example_simple_proj_particle_system():
                                          projection=unit_clamp,
                                          initial_state=lambda n: torch.zeros(n, 2),
                                          alpha=1,
-                                         beta=1,
-                                         sigma=4,
+                                         beta=lambda x: 1,
+                                         sigma=lambda x: 4,
                                          dim=2,
                                          num_particles=5,
                                          step_size=0.01)
