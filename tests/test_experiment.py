@@ -60,11 +60,11 @@ def test_run_experiment(example_simple_proj_particle_system):
     sc = SuccessCriterion(torch.tensor(0.),
                           0.1,
                           'objective_value')
-    out = run_experiment(example_simple_proj_particle_system,
-                         10,
-                         sc,
-                         5,
-                         progress_bar=False)
+    out, _ = run_experiment(example_simple_proj_particle_system,
+                            10,
+                            sc,
+                            5,
+                            progress_bar=False)
     assert 0 <= out <= 1
 
 
@@ -74,10 +74,10 @@ def test_run_experiment_logger(example_simple_proj_particle_system):
                           'objective_value')
     n = 5
     logger = ExperimentLogger(n)
-    out = run_experiment(example_simple_proj_particle_system,
-                         10,
-                         sc,
-                         n,
-                         logger=logger,
-                         progress_bar=False)
+    out, _ = run_experiment(example_simple_proj_particle_system,
+                            10,
+                            sc,
+                            n,
+                            logger=logger,
+                            progress_bar=False)
     assert 0 <= out <= 1
