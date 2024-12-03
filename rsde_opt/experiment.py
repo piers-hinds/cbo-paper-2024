@@ -53,7 +53,7 @@ def run_experiment(system: ParticleSystem,
         progress_bar: If True, a progress bar is displayed
 
     Returns:
-        The success rate of the experiment.
+        The success rate of the experiment, as well as a standard error approximation
     """
     success_count = 0
 
