@@ -2,6 +2,7 @@ from tqdm.auto import tqdm
 import torch
 from .particle_system import ParticleSystem
 from .loggers import ExperimentLogger
+from typing import Tuple
 
 
 class SuccessCriterion:
@@ -39,7 +40,7 @@ def run_experiment(system: ParticleSystem,
                    success_criterion: SuccessCriterion,
                    num_runs: int,
                    logger: ExperimentLogger = None,
-                   progress_bar: bool = True) -> float:
+                   progress_bar: bool = True) -> Tuple[float, float]:
     """
     Run the particle system experiment multiple times and calculate the success rate.
 
@@ -52,7 +53,7 @@ def run_experiment(system: ParticleSystem,
         progress_bar: If True, a progress bar is displayed
 
     Returns:
-        The success rate of the experiment.
+        The success rate of the experiment, as well as a standard error approximation
     """
     success_count = 0
 
@@ -80,6 +81,14 @@ def run_experiment(system: ParticleSystem,
             success_count += 1
 
         system.reset()
+        p = success_count / (i + 1)
+        se = (p * (1 - p) / (i + 1)) ** 0.5
+        progress_bar.set_postfix({
+            'Success rate': f"{p:.2f}",
+            '95% confidence': (f"{p - 1.96 * se:.2f}", f"{p + 1.96 * se:.2f}")
+        })
 
-        progress_bar.set_postfix({'Success rate': success_count / (i+1)})
-    return success_count / num_runs
+    p_hat = success_count / num_runs
+    se = (p_hat * (1 - p_hat) / num_runs) ** 0.5
+
+    return p_hat, se
