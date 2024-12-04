@@ -77,6 +77,7 @@ class SimpleProjectionParticleSystem(ParticleSystem):
     """
     Particle system with projection to feasible regions.
     """
+
     def __init__(self, projection: Callable[[torch.Tensor], None], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.projection = projection
@@ -96,6 +97,7 @@ class ProjectionParticleSystem(ParticleSystem):
     Particle system with projection to feasible regions and dynamics where drift to consensus is killed if particle is
     in a better location.
     """
+
     def __init__(self, projection: Callable[[torch.Tensor], None], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.projection = projection
@@ -122,6 +124,7 @@ class SimplePenaltyParticleSystem(ParticleSystem):
     """
     Particle system with penalty-based constraints.
     """
+
     def __init__(self, projection: Callable[[torch.Tensor], None], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.projection = projection
@@ -132,7 +135,8 @@ class SimplePenaltyParticleSystem(ParticleSystem):
         x_bar = self.consensus()
         current_state = self.state.clone()
         self.projection(self.state)
-        self.state += -beta * (current_state - x_bar) * self.h + sigma * (current_state - x_bar) * normals * self.h.sqrt()
+        self.state += -beta * (current_state - x_bar) * self.h + sigma * (
+                    current_state - x_bar) * normals * self.h.sqrt()
         self.t += self.h
         return self.state, x_bar
 
@@ -141,6 +145,7 @@ class UnconstrainedParticleSystem(ParticleSystem):
     """
     Particle system without explicit constraints. Objective function is modified to encode the constraints.
     """
+
     def __init__(self, penalty_function: Callable[[torch.Tensor], torch.Tensor],
                  penalty_parameter: float, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -162,7 +167,9 @@ class RepellingParticleSystem(ParticleSystem):
     """
     Particle system with repelling dynamics and projection.
     """
-    def __init__(self, projection: Callable[[torch.Tensor], None], lambda_func: Callable[[torch.Tensor], torch.Tensor], *args, **kwargs):
+
+    def __init__(self, projection: Callable[[torch.Tensor], None], lambda_func: Callable[[torch.Tensor], torch.Tensor],
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.projection = projection
         self.lambda_func = lambda_func
@@ -179,7 +186,7 @@ class RepellingParticleSystem(ParticleSystem):
         pairwise_diff = self.state.unsqueeze(1) - self.state.unsqueeze(0)
         distances = torch.norm(pairwise_diff, dim=-1, keepdim=True).clamp(min=1e-8)
         repulsion = lambd * torch.sum(
-            torch.exp(-0.5 * distances**2) * pairwise_diff / distances, dim=1
+            torch.exp(-0.5 * distances ** 2) * pairwise_diff / distances, dim=1
         )
 
         diffusion = sigma * (self.state - x_bar)

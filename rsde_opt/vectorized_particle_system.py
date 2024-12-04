@@ -144,7 +144,8 @@ class VecProjectionParticleSystem(VectorizedParticleSystem):
         x_bar = self.consensus().unsqueeze(1)  # Shape (num_experiments, 1, dim)
 
         self.state += -beta * (self.state - x_bar) * self.h + sigma * (self.state - x_bar) * normals * self.h.sqrt()
-        self.state = self.projection(self.state.view(-1, self.dim)).view(self.num_experiments, self.num_particles, self.dim)
+        self.state = self.projection(self.state.view(-1, self.dim)).view(self.num_experiments, self.num_particles,
+                                                                         self.dim)
 
         self.t += self.h
         return self.state, x_bar.squeeze(1)

@@ -34,4 +34,3 @@ def sample_heart_initial_state(n: int) -> torch.Tensor:
     """
     x = torch.randn([n, 2])
     return project_heart_constraint(x)
-
