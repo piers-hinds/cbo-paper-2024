@@ -43,7 +43,7 @@ class VectorizedParticleSystem:
         """
         self.state = self.initial_state(self.num_experiments * self.num_particles).to(self.device)
         self.state = self.state.view(self.num_experiments, self.num_particles, self.dim)
-        self.t = torch.zeros(self.num_experiments, device=self.device)
+        self.t = torch.tensor(0., device=self.device)
         self.h = torch.tensor(self.step_size, device=self.device)
 
     def consensus(self) -> torch.Tensor:
@@ -179,7 +179,54 @@ class VecPenaltyParticleSystem(VectorizedParticleSystem):
         self.state = self.projection(self.state.view(-1, self.dim)).view(self.num_experiments, self.num_particles,
                                                                          self.dim)
         self.state += -beta * (current_state - x_bar) * self.h + sigma * (
-                    current_state - x_bar) * normals * self.h.sqrt()
+                current_state - x_bar) * normals * self.h.sqrt()
+
+        self.t += self.h
+        return self.state, x_bar.squeeze(1)
+
+
+class VecRepellingParticleSystem(VectorizedParticleSystem):
+    """
+    A vectorized implementation of the repelling particle system.
+
+    Attributes:
+        projection (Callable): Function to enforce constraints (e.g., projection to feasible region).
+        lambda_func (Callable): Function of time controlling the repulsion strength.
+    """
+
+    def __init__(self, projection: Callable[[torch.Tensor], None], lambda_func: Callable[[torch.Tensor], torch.Tensor],
+                 *args, **kwargs):
+        """
+        Initialize the vectorized repelling particle system.
+
+        Args:
+            projection: Callable to enforce constraints.
+            lambda_func: Function of time controlling repulsion strength.
+            *args, **kwargs: Additional arguments passed to the base VectorizedParticleSystem class.
+        """
+        super().__init__(*args, **kwargs)
+        self.projection = projection
+        self.lambda_func = lambda_func
+
+    def step(self, normals: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        beta = self.beta(self.t)
+        sigma = self.sigma(self.t)
+        lambd = self.lambda_func(self.t)
+
+        x_bar = self.consensus().unsqueeze(1)  # Shape (num_experiments, 1, dim)
+
+        pairwise_diff = self.state.unsqueeze(2) - self.state.unsqueeze(
+            1)
+        distances = torch.norm(pairwise_diff, dim=-1, keepdim=True).clamp(min=1e-8)
+
+        repulsion_forces = torch.exp(-0.5 * distances ** 2) * pairwise_diff / distances
+        repulsion_sum = repulsion_forces.sum(dim=2)
+        attraction = -beta * (self.state - x_bar)
+        diffusion = sigma * (self.state - x_bar) * normals
+        self.state += (attraction + lambd * repulsion_sum) * self.h + diffusion * self.h.sqrt()
+
+        self.state = self.projection(self.state.view(-1, self.dim)).view(self.num_experiments, self.num_particles,
+                                                                         self.dim)
 
         self.t += self.h
         return self.state, x_bar.squeeze(1)
