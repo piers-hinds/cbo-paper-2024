@@ -149,3 +149,37 @@ class VecProjectionParticleSystem(VectorizedParticleSystem):
 
         self.t += self.h
         return self.state, x_bar.squeeze(1)
+
+
+class VecPenaltyParticleSystem(VectorizedParticleSystem):
+    """
+    A vectorized implementation of the penalty particle system.
+
+    Attributes:
+        projection (Callable): Function to enforce constraints (e.g. projection to feasible region).
+    """
+
+    def __init__(self, projection: Callable[[torch.Tensor], None], *args, **kwargs):
+        """
+        Initialize the vectorized projection particle system.
+
+        Args:
+            projection: Callable to enforce constraints.
+            *args, **kwargs: Additional arguments passed to the base VectorizedParticleSystem class.
+        """
+        super().__init__(*args, **kwargs)
+        self.projection = projection
+
+    def step(self, normals: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        beta = self.beta(self.t)
+        sigma = self.sigma(self.t)
+
+        x_bar = self.consensus().unsqueeze(1)  # Shape (num_experiments, 1, dim)
+        current_state = self.state.clone()
+        self.state = self.projection(self.state.view(-1, self.dim)).view(self.num_experiments, self.num_particles,
+                                                                         self.dim)
+        self.state += -beta * (current_state - x_bar) * self.h + sigma * (
+                    current_state - x_bar) * normals * self.h.sqrt()
+
+        self.t += self.h
+        return self.state, x_bar.squeeze(1)
