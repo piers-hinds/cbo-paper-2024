@@ -28,7 +28,7 @@ def ackley_function(x: torch.Tensor) -> torch.Tensor:
     torch.Tensor: Output tensor of shape (n,) containing the Ackley function values
                   for each input point.
     """
-    x_part, y_part = x[:, 0]-2, x[:, 1]-2
+    x_part, y_part = x[:, 0] - 2, x[:, 1] - 2
     a = 20
     b = 0.2
     c = 2 * torch.pi

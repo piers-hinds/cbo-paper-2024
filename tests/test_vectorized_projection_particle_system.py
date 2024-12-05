@@ -36,7 +36,7 @@ def test_vec_particle_system_init(example_vec_proj_particle_system):
 def test_vec_particle_system_consensus(example_vec_proj_particle_system):
     consensus = example_vec_proj_particle_system.consensus()
     assert consensus.shape == (example_vec_proj_particle_system.num_experiments,
-                                example_vec_proj_particle_system.dim)
+                               example_vec_proj_particle_system.dim)
 
 
 def test_vec_particle_system_reset(example_vec_proj_particle_system):
@@ -59,7 +59,7 @@ def test_vec_projection_particle_system_step(example_vec_proj_particle_system):
     new_state, consensus = example_vec_proj_particle_system.step(normals)
     assert new_state.shape == example_vec_proj_particle_system.state.shape
     assert consensus.shape == (example_vec_proj_particle_system.num_experiments,
-                                example_vec_proj_particle_system.dim)
+                               example_vec_proj_particle_system.dim)
 
 
 @pytest.fixture
