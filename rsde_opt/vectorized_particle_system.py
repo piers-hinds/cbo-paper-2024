@@ -122,7 +122,7 @@ class VectorizedParticleSystem:
             for i in range(self.num_experiments)
         ], device=self.device)
 
-        success_rate = success_mask.float().mean().item()
+        success_rate = success_mask.double().mean().item()
         se = (success_rate * (1 - success_rate) / self.num_experiments) ** 0.5
 
         return success_rate, se
