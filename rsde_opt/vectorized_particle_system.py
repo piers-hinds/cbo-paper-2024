@@ -78,33 +78,43 @@ class VectorizedParticleSystem:
         """
         self.__post_init__()
 
+    def run_system(self, num_steps: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+            Runs the particle system for a specified number of steps and computes the final consensus
+            and the corresponding objective value.
+
+            Args:
+                num_steps (int): The number of iterations to update the particle system.
+
+            Returns:
+                Tuple[torch.Tensor, torch.Tensor]:
+                    - final_consensus (torch.Tensor): The consensus values at the end of the simulation.
+                    - final_objective (torch.Tensor): The objective values corresponding to the final consensus values.
+            """
+        for _ in range(num_steps):
+            normals = torch.randn(self.num_experiments, self.num_particles, self.dim, device=self.device)
+            self.step(normals)
+
+        final_consensus = self.consensus()
+        final_objective = self.objective(final_consensus)
+        return final_consensus, final_objective
+
     def run_experiments(self,
                         num_steps: int,
-                        success_criterion: SuccessCriterion,
-                        logger=None) -> Tuple[float, float]:
+                        success_criterion: SuccessCriterion
+                        ) -> Tuple[float, float]:
         """
         Run the particle system experiments in parallel and calculate the success rate.
 
         Args:
             num_steps: The number of iterations of the numerical scheme.
             success_criterion: A SuccessCriterion object to determine if an experiment is successful.
-            logger: An optional logger to record the particles consensus.
+
 
         Returns:
             Tuple[float, float]: The success rate and standard error.
         """
-        for _ in range(num_steps):
-            normals = torch.randn(self.num_experiments, self.num_particles, self.dim, device=self.device)
-            state, consensus = self.step(normals)
-
-            if logger is not None:
-                for i in range(self.num_experiments):
-                    logger.log_consensus(experiment_index=i, consensus=consensus[i])
-                    objective_value = self.objective(consensus[i])
-                    logger.log_objective(experiment_index=i, objective_value=objective_value)
-
-        final_consensus = self.consensus()
-        final_objective = self.objective(final_consensus)
+        final_consensus, final_objective = self.run_system(num_steps)
 
         # Apply success criterion individually to each experiment - maybe change this eventually
         success_mask = torch.tensor([
@@ -112,7 +122,7 @@ class VectorizedParticleSystem:
             for i in range(self.num_experiments)
         ], device=self.device)
 
-        success_rate = success_mask.float().mean().item()
+        success_rate = success_mask.double().mean().item()
         se = (success_rate * (1 - success_rate) / self.num_experiments) ** 0.5
 
         return success_rate, se
