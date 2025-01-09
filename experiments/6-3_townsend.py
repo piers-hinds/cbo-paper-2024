@@ -1,7 +1,5 @@
-import csv
-import itertools
 from rsde_opt import *
-from functools import partial
+import pandas as pd
 
 
 def grad_heart_level_set(x: torch.Tensor) -> torch.Tensor:
@@ -24,8 +22,10 @@ def grad_heart_level_set(x: torch.Tensor) -> torch.Tensor:
     dsin_term_dx1 = dsin_term_dt * dt_dx1
     dsin_term_dx2 = dsin_term_dt * dt_dx2
 
-    df_dx1 = 2 * x1 - 2 * (2 * cos_t - 0.5 * cos_2t - 0.25 * cos_3t - 0.125 * cos_4t) * dcos_terms_dx1 - 2 * (2 * sin_t) * dsin_term_dx1
-    df_dx2 = 2 * x2 - 2 * (2 * cos_t - 0.5 * cos_2t - 0.25 * cos_3t - 0.125 * cos_4t) * dcos_terms_dx2 - 2 * (2 * sin_t) * dsin_term_dx2
+    df_dx1 = 2 * x1 - 2 * (2 * cos_t - 0.5 * cos_2t - 0.25 * cos_3t - 0.125 * cos_4t) * dcos_terms_dx1 - 2 * (
+            2 * sin_t) * dsin_term_dx1
+    df_dx2 = 2 * x2 - 2 * (2 * cos_t - 0.5 * cos_2t - 0.25 * cos_3t - 0.125 * cos_4t) * dcos_terms_dx2 - 2 * (
+            2 * sin_t) * dsin_term_dx2
 
     return torch.stack([df_dx1, df_dx2], dim=1)
 
@@ -91,45 +91,36 @@ def townsend_init(n):
 
 
 if __name__ == '__main__':
+    torch.manual_seed(1)
+    num_steps_list = [5, 10, 20, 50, 100]
+    num_particles_list = [10, 20, 50, 100]
+
     dim = 2
     true_optimum = torch.tensor([2.0052938, 1.194451])
     epsilon = 0.1
-    sc = SuccessCriterion(true_optimum,
-                          epsilon,
-                          optimum_type='x_value')
-    num_runs = 100
-    num_steps = 500
-
-    alphas = [1, 10, 100, 1000]
-    Ns = [5, 10, 50, 100]
-
-    system = SimpleProjectionParticleSystem(objective=townsend_function,
-                                            projection=heart_projection,
-                                            initial_state=townsend_init,
-                                            alpha=10000,
-                                            beta=1,
-                                            sigma=4,
-                                            dim=dim,
-                                            num_particles=100,
-                                            step_size=0.01)
-
+    num_experiments = 100
     results = []
-    for alpha, N in itertools.product(alphas, Ns):
-        torch.manual_seed(0)
-        system.reset()
-        system.alpha = alpha
-        system.num_particles = N
-        success_rate = run_experiment(system,
-                                      num_steps,
-                                      sc,
-                                      num_runs)
-        results.append([alpha, N, success_rate])
 
-    with open('alpha_n_townsend.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Alpha', 'N', 'Success Rate'])
-        writer.writerows(results)
+    for num_steps in num_steps_list:
+        step_size = 1 / 20
+        for num_particles in num_particles_list:
+            sc = SuccessCriterion(true_optimum, epsilon, optimum_type='x_value')
+            system = VecProjectionParticleSystem(
+                objective=townsend_function,
+                projection=heart_projection,
+                initial_state=townsend_init,
+                alpha=10000,
+                beta=lambda x: 1,
+                sigma=lambda x: 4,
+                dim=dim,
+                num_particles=num_particles,
+                step_size=step_size,
+                num_experiments=num_experiments,
+            )
+            success_rate, _ = system.run_experiments(num_steps, sc)
+            row = {"num_steps": num_steps, "num_particles": num_particles, "success_rate": success_rate}
+            print(row)
+            results.append(row)
 
-    best_params = max(results, key=lambda x: x[2])
-    print(f"\nBest hyperparameters:")
-    print(f"alpha: {best_params[0]:.2f}", f"N: {best_params[1]:.2f}", f"Success rate: {best_params[2]:.2f}")
+    df_results = pd.DataFrame(results)
+    df_results.to_csv("townsend_projection_time_results.csv", index=False)
